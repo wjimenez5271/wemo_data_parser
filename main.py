@@ -77,7 +77,7 @@ def update_db(dbname, data, dirpath):
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser(description='Export Elasticsearch data using an HTTP/web based interface')
+    parser = argparse.ArgumentParser(description='Tool to fetch wemo data export emails and parse them')
     parser.add_argument("--imap_host", help="IMAP host to connect to", required=True)
     parser.add_argument("--imap_user", help="IMAP username", required=True)
     parser.add_argument("--imap_password", help="IMAP password", required=True)
