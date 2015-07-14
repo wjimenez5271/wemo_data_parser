@@ -83,6 +83,8 @@ if __name__ == '__main__':
     parser.add_argument("--imap_password", help="IMAP password", required=True)
     parser.add_argument("--db_dir", help="Directory to write database files to", required=False,
                         default=os.path.expanduser("~"))
+    parser.add_argument("--print_output", help="Print output to stdout?", action='store_true', required=False,
+                        default=False)
     parser.add_argument("--email_search", help="search string",
                         required=False, default='(From WeMoExport@Belkin.com)')
 
@@ -95,6 +97,9 @@ if __name__ == '__main__':
     for msgId in data[0].split():
         typ, messageParts = imapSession.fetch(msgId, '(RFC822)')
         data = parse_attachement(messageParts)
+
+    if args.print_output:
+        print data
 
     header, daily_summary, detailed_usage = seperate_datatypes(data)
 
