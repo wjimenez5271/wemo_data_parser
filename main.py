@@ -7,6 +7,7 @@ import csv
 import pprint
 import argparse
 import json
+import os
 
 def parse_attachement(messageParts):
     message_body = messageParts[0][1]
@@ -64,9 +65,14 @@ def parse_csv(csvbody):
     return _l
 
 def update_db(dbname, data):
-    with open('db_{}.json'.format(dbname), 'rw') as f:
+    filename = 'db_{}.json'.format(dbname)
+    if not os.path.isfile(filename):
+        with open (filename, 'w') as f:
+            f.write('[]')
+    with open(filename, 'r') as f:
         _data = json.load(f)
-        _data.append(data)
+    _data.append(data)
+    with open(filename, 'w') as f:
         json.dump(_data, f)
 
 if __name__ == '__main__':
