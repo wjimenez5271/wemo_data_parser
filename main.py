@@ -64,8 +64,8 @@ def parse_csv(csvbody):
       _l.append(row)
     return _l
 
-def update_db(dbname, data):
-    filename = 'db_{}.json'.format(dbname)
+def update_db(dbname, data, dirpath):
+    filename = os.path.join(dirpath,'db_{}.json'.format(dbname))
     if not os.path.isfile(filename):
         with open (filename, 'w') as f:
             f.write('[]')
@@ -81,6 +81,8 @@ if __name__ == '__main__':
     parser.add_argument("--imap_host", help="IMAP host to connect to", required=True)
     parser.add_argument("--imap_user", help="IMAP username", required=True)
     parser.add_argument("--imap_password", help="IMAP password", required=True)
+    parser.add_argument("--db_dir", help="Directory to write database files to", required=False,
+                        default=os.path.expanduser("~"))
     parser.add_argument("--email_search", help="search string",
                         required=False, default='(From WeMoExport@Belkin.com)')
 
@@ -96,5 +98,5 @@ if __name__ == '__main__':
 
     header, daily_summary, detailed_usage = seperate_datatypes(data)
 
-    update_db("daily_summary", daily_summary)
-    update_db("detailed_usage", detailed_usage)
+    update_db("daily_summary", parse_csv(daily_summary), args.db_dir)
+    update_db("detailed_usage", parse_csv(detailed_usage), args.db_dir)
