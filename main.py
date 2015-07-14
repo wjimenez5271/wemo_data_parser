@@ -6,6 +6,7 @@ import cStringIO
 import csv
 import pprint
 import argparse
+import json
 
 def parse_attachement(messageParts):
     message_body = messageParts[0][1]
@@ -29,6 +30,31 @@ def get_messages(imap_server, search_string):
     typ, data = imap_server.search(None, search_string)
     return typ, data
 
+def seperate_datatypes(csvdata):
+    def reconstruct_string(l):
+        _l = ''
+        for line in l:
+            _l = _l + line
+        return _l
+
+    header = []
+    daily_summary = []
+    detailed_usage = []
+    a = header
+    for line in cStringIO.StringIO(csvdata):
+        if "Exported Data for WeMo Insight" in line:
+            a = header
+        elif "Daily Usage Summary" in line:
+            a = daily_summary
+        elif "Energy Data" in line:
+            a = detailed_usage
+        else:
+            a.append(line)
+    header = reconstruct_string(header)
+    daily_summary = reconstruct_string(daily_summary)
+    detailed_usage = reconstruct_string(detailed_usage)
+    return header, daily_summary, detailed_usage
+
 
 def parse_csv(csvbody):
     _l = []
@@ -37,6 +63,11 @@ def parse_csv(csvbody):
       _l.append(row)
     return _l
 
+def update_db(dbname, data):
+    with open('db_{}.json'.format(dbname), 'rw') as f:
+        _data = json.load(f)
+        _data.append(data)
+        json.dump(_data, f)
 
 if __name__ == '__main__':
 
@@ -55,4 +86,9 @@ if __name__ == '__main__':
 
     for msgId in data[0].split():
         typ, messageParts = imapSession.fetch(msgId, '(RFC822)')
-        print parse_attachement(messageParts)
+        data = parse_attachement(messageParts)
+
+    header, daily_summary, detailed_usage = seperate_datatypes(data)
+
+    update_db("daily_summary", daily_summary)
+    update_db("detailed_usage", detailed_usage)
